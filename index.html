@@ -8,6 +8,12 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Screen hilni nahi chahiye */
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
@@ -16,172 +22,88 @@
                 radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
                 radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
             color: #e2e8f0;
-            overflow: hidden;
         }
-        
         .glass {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .input-glass {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .input-glass:focus {
-            border-color: #a855f7;
-            outline: none;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
-        }
-
-        .msg-user {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        }
-        .msg-ai {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
+        .msg-user { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        .msg-ai { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.05); }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            border-top: 3px solid #a855f7;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="h-screen w-screen flex justify-center items-center">
+<body class="flex justify-center items-center">
 
-    <div id="loginScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/90 backdrop-blur-xl transition-all duration-500">
+    <div id="loginScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-xl transition-all duration-500">
         <div class="w-full max-w-sm text-center">
-            <div class="mb-8 flex justify-center">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-purple-500/30">
-                    <i class="ph-fill ph-youtube-logo text-3xl text-white"></i>
-                </div>
+            <div class="w-16 h-16 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
+                <i class="ph-fill ph-youtube-logo text-3xl text-white"></i>
             </div>
             <h1 class="text-3xl font-bold text-white mb-2">Neural Matrix</h1>
-            <p class="text-gray-400 mb-8 text-sm">Hybrid Research & Hacking OS</p>
-
-            <div class="space-y-4">
-                <div class="relative text-left">
-                    <label class="text-xs text-gray-500 ml-1">Access Email</label>
-                    <input type="email" id="loginEmail" placeholder="taha@matrix.com" 
-                        class="w-full input-glass rounded-xl px-4 py-3 mt-1 text-sm font-sans placeholder-gray-600">
-                </div>
-                
-                <button onclick="handleLogin()" class="w-full bg-white text-black font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group">
-                    <i class="ph-bold ph-key"></i>
-                    <span>Initialize System</span>
-                </button>
-            </div>
+            <input type="email" id="loginEmail" placeholder="taha@matrix.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 mb-4 text-white outline-none">
+            <button onclick="handleLogin()" class="w-full bg-white text-black font-bold py-4 rounded-xl">Initialize System</button>
         </div>
     </div>
 
-    <div id="appContainer" class="w-full max-w-md h-full flex flex-col relative shadow-2xl overflow-hidden glass hidden opacity-0 transition-opacity duration-500">
+    <div id="appContainer" class="w-screen h-screen max-w-md flex flex-col glass hidden opacity-0 transition-opacity duration-500">
         
-        <header class="flex justify-between items-center p-4 glass z-20">
+        <header class="p-4 glass flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white" id="userAvatar">U</div>
+                <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold" id="userAvatar">T</div>
                 <div>
-                    <h1 class="font-bold text-sm text-white" id="userNameDisplay">User</h1>
-                    <div class="flex items-center gap-1">
-                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span class="text-[10px] text-emerald-400 font-mono">HYBRID ACTIVE</span>
-                    </div>
+                    <h1 class="text-sm font-bold text-white" id="userNameDisplay">Admin</h1>
+                    <span class="text-[10px] text-emerald-400 font-mono">● HYBRID ACTIVE</span>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button id="adminBtn" onclick="toggleAdminPanel()" class="hidden p-2 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition">
-                    <i class="ph-bold ph-shield-check"></i>
-                </button>
-                <button onclick="toggleSettings()" class="p-2 rounded-full hover:bg-white/10 transition text-gray-300">
-                    <i class="ph ph-gear text-xl"></i>
-                </button>
-            </div>
+            <button onclick="toggleSettings()" class="p-2 text-gray-400"><i class="ph ph-gear text-xl"></i></button>
         </header>
 
-        <div class="p-4 z-10">
-            <div class="glass p-1.5 rounded-xl flex items-center gap-2">
-                <input type="text" id="youtubeUrl" placeholder="Paste YouTube Link Here..." 
-                    class="w-full bg-transparent border-none outline-none text-xs pl-4 py-2 text-white placeholder-gray-600 font-mono">
-                <button onclick="loadVideo()" class="bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold py-2 px-4 rounded-lg transition">LOAD</button>
+        <div class="p-4 shrink-0">
+            <div class="glass p-1.5 rounded-xl flex gap-2">
+                <input type="text" id="youtubeUrl" placeholder="Paste Link..." class="flex-1 bg-transparent px-3 py-2 text-xs text-white outline-none">
+                <button onclick="loadVideo()" class="bg-purple-600 px-4 py-2 rounded-lg text-[10px] font-bold">LOAD</button>
             </div>
-            <div id="statusText" class="text-[10px] text-center mt-2 text-gray-500 font-mono h-4 truncate uppercase tracking-widest">System Ready</div>
+            <div id="statusText" class="text-[10px] text-center mt-2 text-gray-500 font-mono uppercase tracking-widest">System Ready</div>
         </div>
 
-        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide scroll-smooth">
-            <div class="flex gap-3 animate-fade-in">
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shrink-0">
-                    <i class="ph-fill ph-robot text-emerald-400"></i>
-                </div>
-                <div class="msg-ai p-3 rounded-2xl rounded-tl-none text-sm leading-relaxed max-w-[85%] text-gray-200 shadow-sm">
-                    Neural Link: **Gemini 2.0 Flash Lite**. <br>Ready for Hybrid Analysis. Paste a link to begin.
-                </div>
+        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
             </div>
-        </div>
 
-        <div class="sticky bottom-0 w-full glass p-3 z-30 backdrop-blur-md border-t border-white/10">
-            <form onsubmit="handleChat(event)" class="flex items-center gap-2">
+        <div class="p-4 bg-slate-900/80 backdrop-blur-xl border-t border-white/5 shrink-0">
+            <form onsubmit="handleChat(event)" class="flex gap-2">
                 <input type="text" id="userQuery" placeholder="Ask about the video..." autocomplete="off"
-                    class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-purple-500 outline-none">
-                <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-xl text-white shadow-lg shadow-purple-500/20">
+                    class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none">
+                <button type="submit" class="bg-indigo-600 p-3 rounded-xl text-white">
                     <i class="ph-bold ph-paper-plane-right"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 glass-panel hidden z-50 flex items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-[#1e293b] rounded-2xl p-6 shadow-2xl border border-white/10 relative">
-            <button onclick="toggleSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-            <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><i class="ph-fill ph-gear"></i> System Config</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">OpenRouter API Key</label>
-                    <input type="password" id="apiKeyInput" placeholder="sk-or-..." class="w-full input-glass rounded-lg p-3 text-xs font-mono">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">Active Model ID</label>
-                    <input type="text" id="modelInput" class="w-full input-glass rounded-lg p-3 text-xs font-mono">
-                </div>
-                <button onclick="saveSettings()" class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl text-sm transition hover:bg-purple-500">Update Core</button>
-            </div>
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-slate-900 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-white font-bold mb-4">Settings</h2>
+            <input type="password" id="apiKeyInput" placeholder="API Key" class="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-white mb-3">
+            <input type="text" id="modelInput" placeholder="Model ID" class="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-white mb-4">
+            <button onclick="saveSettings()" class="w-full bg-purple-600 py-3 rounded-xl font-bold">Save Changes</button>
+            <button onclick="toggleSettings()" class="w-full mt-2 text-gray-500 text-xs">Close</button>
         </div>
     </div>
 
-    <div id="loader" class="fixed inset-0 bg-black/80 z-[60] hidden flex flex-col items-center justify-center backdrop-blur-sm">
-        <div class="loader mb-4"></div>
-        <div id="loaderText" class="text-xs font-mono text-purple-300 animate-pulse uppercase">Syncing...</div>
+    <div id="loader" class="fixed inset-0 bg-black/80 z-[110] hidden flex flex-col items-center justify-center">
+        <div class="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+        <p id="loaderText" class="mt-4 text-xs font-mono text-purple-400 uppercase">Processing...</p>
     </div>
 
     <script>
         const ADMIN_EMAIL = "usmanmianrajjpot@gmail.com";
-        const ADMIN_NAME = "Taha";
         const DEFAULT_MODEL = "google/gemini-2.0-flash-lite-preview-02-05:free";
-        
-        let state = {
-            currentUser: null,
-            isAdmin: false,
-            videoContext: "",
-            apiKey: localStorage.getItem('yt_hacker_key') || "",
-            modelName: localStorage.getItem('yt_hacker_model') || DEFAULT_MODEL
-        };
+        let state = { videoContext: "", apiKey: localStorage.getItem('yt_hacker_key') || "", modelName: localStorage.getItem('yt_hacker_model') || DEFAULT_MODEL };
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('apiKeyInput').value = state.apiKey;
@@ -189,109 +111,67 @@
         });
 
         function handleLogin() {
-            const emailInput = document.getElementById('loginEmail');
-            const email = emailInput.value.trim().toLowerCase();
-            if(!email) return alert("Access Denied: Email required.");
-
-            state.currentUser = email;
-            const loginScreen = document.getElementById('loginScreen');
-            const appContainer = document.getElementById('appContainer');
-            const userNameDisplay = document.getElementById('userNameDisplay');
-            const userAvatar = document.getElementById('userAvatar');
-            const adminBtn = document.getElementById('adminBtn');
-
-            if (email === ADMIN_EMAIL.toLowerCase()) {
-                state.isAdmin = true;
-                userNameDisplay.innerText = ADMIN_NAME + " (Admin)";
-                userAvatar.innerText = "T";
-                userAvatar.classList.add('bg-red-600', 'shadow-[0_0_10px_rgba(220,38,38,0.5)]');
-                adminBtn.classList.remove('hidden');
-            } else {
-                state.isAdmin = false;
-                userNameDisplay.innerText = email.split('@')[0];
-                adminBtn.classList.add('hidden');
-            }
-
-            loginScreen.style.opacity = '0';
-            setTimeout(() => {
-                loginScreen.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                appContainer.style.display = 'flex';
-                setTimeout(() => {
-                    appContainer.style.opacity = '1';
-                    addMessage("ai", `Neural link established. Authorized as: **${state.isAdmin ? 'Administrator Taha' : 'Standard User'}**.`);
-                }, 50);
-            }, 500);
-        }
-
-        function showStatus(t, e) { 
-            const s = document.getElementById('statusText');
-            if(!s) return;
-            s.innerText = t; 
-            s.className = `text-[10px] text-center mt-2 font-mono uppercase tracking-widest ${e ? 'text-red-400' : 'text-emerald-400'}`; 
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            if(!email) return alert("Email Required");
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            const app = document.getElementById('appContainer');
+            app.classList.remove('hidden');
+            app.style.display = 'flex';
+            setTimeout(() => app.style.opacity = '1', 50);
+            
+            addMessage("ai", `Neural link established. Authorized as: **${email === ADMIN_EMAIL ? 'Admin Taha' : 'User'}**.`);
         }
 
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
-
         function saveSettings() {
             state.apiKey = document.getElementById('apiKeyInput').value.trim();
             state.modelName = document.getElementById('modelInput').value.trim();
             localStorage.setItem('yt_hacker_key', state.apiKey);
             localStorage.setItem('yt_hacker_model', state.modelName);
             toggleSettings();
-            addMessage("ai", `System Reconfigured. Target: ${state.modelName}`);
         }
 
         async function loadVideo() {
             const url = document.getElementById('youtubeUrl').value.trim();
-            if(!url) return showStatus("Link Required", true);
-            showLoader("Infiltrating Metadata...");
+            if(!url) return;
+            showLoader("Accessing Data...");
             try {
                 const res = await fetch(`https://r.jina.ai/${url}`);
                 state.videoContext = await res.text();
                 hideLoader();
-                showStatus("Data Secured", false);
-                addMessage("ai", "Transcript stored. Hybrid Analysis active.");
-            } catch (e) {
-                hideLoader();
-                showStatus("Extraction Failed", true);
-                addMessage("ai", "❌ Error: Transcript server unreachable.");
-            }
+                document.getElementById('statusText').innerText = "DATA SECURED";
+                addMessage("ai", "Transcript Loaded. Ask me anything.");
+            } catch (e) { hideLoader(); alert("Error loading video."); }
         }
 
         async function handleChat(e) {
             e.preventDefault();
             const input = document.getElementById('userQuery');
-            const question = input.value.trim();
-            if(!question || !state.videoContext || !state.apiKey) return;
+            const msg = input.value.trim();
+            if(!msg || !state.apiKey) return;
 
-            addMessage("user", question);
+            addMessage("user", msg);
             input.value = "";
-            showLoader("Processing...");
+            showLoader("Analyzing...");
 
             try {
                 const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${state.apiKey}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: state.modelName,
                         messages: [
-                            { role: "system", content: `You are Neural Matrix AI. Video context provided.` },
-                            { role: "system", content: `VIDEO DATA:\n${state.videoContext.substring(0, 30000)}` },
-                            { role: "user", content: question }
+                            { role: "system", content: "You are a video analyst." },
+                            { role: "system", content: "CONTEXT: " + state.videoContext.substring(0, 30000) },
+                            { role: "user", content: msg }
                         ]
                     })
                 });
                 const data = await res.json();
                 hideLoader();
                 addMessage("ai", data.choices[0].message.content);
-            } catch (err) {
-                hideLoader();
-                addMessage("ai", "❌ Connection Error.");
-            }
+            } catch (err) { hideLoader(); addMessage("ai", "Connection Error."); }
         }
 
         function addMessage(role, text) {
@@ -299,13 +179,7 @@
             const div = document.createElement('div');
             const isUser = role === 'user';
             div.className = `flex gap-3 animate-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-indigo-600' : 'bg-emerald-500/20'}">
-                    <i class="ph-fill ${isUser ? 'ph-user' : 'ph-robot'} text-white"></i>
-                </div>
-                <div class="${isUser ? 'msg-user' : 'msg-ai'} p-3 rounded-2xl text-sm max-w-[85%] text-gray-200">
-                    ${text}
-                </div>`;
+            div.innerHTML = `<div class="p-3 rounded-2xl text-sm max-w-[85%] ${isUser ? 'msg-user' : 'msg-ai'} text-white">${text}</div>`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
