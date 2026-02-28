@@ -12,7 +12,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Screen hilni nahi chahiye */
+            overflow: hidden; 
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -72,7 +72,7 @@
         </div>
 
         <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-            </div>
+        </div>
 
         <div class="p-4 bg-slate-900/80 backdrop-blur-xl border-t border-white/5 shrink-0">
             <form onsubmit="handleChat(event)" class="flex gap-2">
@@ -124,12 +124,14 @@
         }
 
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+        
         function saveSettings() {
             state.apiKey = document.getElementById('apiKeyInput').value.trim();
             state.modelName = document.getElementById('modelInput').value.trim();
             localStorage.setItem('yt_hacker_key', state.apiKey);
             localStorage.setItem('yt_hacker_model', state.modelName);
             toggleSettings();
+            addMessage("ai", "Settings Updated. Ready to analyze.");
         }
 
         async function loadVideo() {
@@ -141,37 +143,65 @@
                 state.videoContext = await res.text();
                 hideLoader();
                 document.getElementById('statusText').innerText = "DATA SECURED";
-                addMessage("ai", "Transcript Loaded. Ask me anything.");
-            } catch (e) { hideLoader(); alert("Error loading video."); }
+                addMessage("ai", "Transcript Loaded successfully. Ask me anything about the video.");
+            } catch (e) { 
+                hideLoader(); 
+                document.getElementById('statusText').innerText = "LOAD FAILED";
+                addMessage("ai", "❌ Error loading transcript. Check URL."); 
+            }
         }
 
+        // Updated HandleChat Function
         async function handleChat(e) {
             e.preventDefault();
             const input = document.getElementById('userQuery');
-            const msg = input.value.trim();
-            if(!msg || !state.apiKey) return;
+            const question = input.value.trim();
+            
+            if(!question) return;
+            if(!state.videoContext) return addMessage("ai", "⚠️ Pehle YouTube Link LOAD karein.");
+            if(!state.apiKey) {
+                addMessage("ai", "⚠️ API Key missing! Settings (Gear icon) mein ja kar key dalein.");
+                toggleSettings();
+                return;
+            }
 
-            addMessage("user", msg);
+            addMessage("user", question);
             input.value = "";
-            showLoader("Analyzing...");
+            showLoader("Neural Processing...");
 
             try {
                 const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
+                    headers: {
+                        "Authorization": `Bearer ${state.apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.origin,
+                        "X-Title": "Neural Matrix AI"
+                    },
                     body: JSON.stringify({
                         model: state.modelName,
                         messages: [
-                            { role: "system", content: "You are a video analyst." },
-                            { role: "system", content: "CONTEXT: " + state.videoContext.substring(0, 30000) },
-                            { role: "user", content: msg }
+                            { role: "system", content: "You are Neural Matrix AI. Answer based on the video context provided." },
+                            { role: "user", content: `Context: ${state.videoContext}\n\nQuestion: ${question}` }
                         ]
                     })
                 });
+
                 const data = await res.json();
                 hideLoader();
-                addMessage("ai", data.choices[0].message.content);
-            } catch (err) { hideLoader(); addMessage("ai", "Connection Error."); }
+
+                if (data.error) {
+                    addMessage("ai", "❌ API Error: " + (data.error.message || "Invalid Request"));
+                } else if (data.choices && data.choices[0]) {
+                    addMessage("ai", data.choices[0].message.content);
+                } else {
+                    addMessage("ai", "❌ Response empty. Try again.");
+                }
+            } catch (err) {
+                hideLoader();
+                addMessage("ai", "❌ Connection Error: Check your internet or API Key.");
+                console.error("Chat Error:", err);
+            }
         }
 
         function addMessage(role, text) {
@@ -179,7 +209,7 @@
             const div = document.createElement('div');
             const isUser = role === 'user';
             div.className = `flex gap-3 animate-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
-            div.innerHTML = `<div class="p-3 rounded-2xl text-sm max-w-[85%] ${isUser ? 'msg-user' : 'msg-ai'} text-white">${text}</div>`;
+            div.innerHTML = `<div class="p-3 rounded-2xl text-sm max-w-[85%] ${isUser ? 'msg-user' : 'msg-ai'} text-white shadow-md">${text}</div>`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
@@ -189,5 +219,4 @@
     </script>
 </body>
 </html>
-
 
