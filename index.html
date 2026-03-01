@@ -2,127 +2,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mera AI - Smart Blue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neural Matrix AI - Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { background-color: #020617; color: #e2e8f0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
-        .neon-text { text-shadow: 0 0 10px #3b82f6; }
-        .neon-box { border: 1px solid #1d4ed8; box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
-        /* Message Bubbles Fix */
-        .msg-container { display: flex; flex-direction: column; gap: 12px; padding: 10px; }
-        .user-msg { align-self: flex-end; background: #1e3a8a; color: white; padding: 10px 16px; border-radius: 18px 18px 0 18px; max-width: 80%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .ai-msg { align-self: flex-start; background: #0f172a; border: 1px solid #1e40af; color: #93c5fd; padding: 10px 16px; border-radius: 18px 18px 18px 0; max-width: 80%; }
-        #chat-box::-webkit-scrollbar { width: 4px; }
-        #chat-box::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 10px; }
-        .mic-on { background: #ef4444 !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        body, html { height: 100%; margin: 0; overflow: hidden; background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .msg-user { background: linear-gradient(135deg, #6366f1, #a855f7); align-self: flex-end; border-radius: 18px 18px 2px 18px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .msg-ai { background: rgba(255, 255, 255, 0.07); align-self: flex-start; border-radius: 18px 18px 18px 2px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .loader-spin { border-top-color: #6366f1; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="flex justify-center items-center">
 
-    <div class="p-4 bg-black border-b border-blue-900 flex items-center gap-3 shadow-lg">
-        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <div id="loginScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black p-6">
+        <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-2xl mb-6 flex items-center justify-center shadow-2xl">
+            <i class="ph-fill ph-cpu text-3xl"></i>
         </div>
-        <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
+        <h1 class="text-3xl font-bold mb-2">Neural Matrix</h1>
+        <p class="text-gray-500 text-xs mb-8 uppercase tracking-widest">Hybrid Analysis System</p>
+        <input type="email" id="loginEmail" placeholder="Enter Access Email" class="w-full max-w-sm p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:border-indigo-500 transition-all">
+        <button onclick="handleLogin()" class="w-full max-w-sm bg-white text-black font-bold py-4 rounded-xl hover:bg-indigo-500 hover:text-white transition-all">Initialize Matrix</button>
     </div>
 
-    <div id="chat-box" class="flex-1 overflow-y-auto p-4 msg-container">
-        <div id="welcome-msg" class="text-center my-auto">
-            <h2 class="text-2xl font-bold text-blue-400 neon-text">Assalam-o-Alaikum!</h2>
-            <p class="text-gray-500">Main bol bhi sakta hoon aur sun bhi sakta hoon.</p>
+    <div id="appContainer" class="w-screen h-screen max-w-md flex flex-col hidden opacity-0 transition-opacity duration-500">
+        <header class="p-4 glass flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold">T</div>
+                <div class="text-xs font-bold">Administrator Taha</div>
+            </div>
+            <button onclick="toggleSettings()" class="p-2 text-gray-400 hover:text-white"><i class="ph ph-gear text-xl"></i></button>
+        </header>
+
+        <div class="p-4 shrink-0 space-y-3">
+            <div class="glass p-1.5 rounded-2xl flex gap-2">
+                <input type="text" id="youtubeUrl" placeholder="Paste YouTube Link..." class="flex-1 bg-transparent px-3 py-2 text-sm outline-none">
+                <button onclick="loadVideo()" class="bg-indigo-600 px-5 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-tight">Load</button>
+            </div>
+            <div id="status" class="text-[10px] text-center text-emerald-400 font-mono opacity-60">SYSTEM READY</div>
+        </div>
+
+        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 scrollbar-hide">
+            </div>
+
+        <div class="p-4 bg-slate-900/50 backdrop-blur-xl border-t border-white/5 shrink-0">
+            <form onsubmit="handleChat(event)" class="flex gap-2">
+                <input type="text" id="userQuery" placeholder="Ask about the video..." autocomplete="off" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500">
+                <button type="submit" class="bg-indigo-600 w-12 h-12 flex items-center justify-center rounded-xl shadow-lg">
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="p-4 bg-black border-t border-blue-900">
-        <div class="flex gap-2">
-            <button id="mic-btn" class="bg-blue-900 text-white px-4 rounded-xl hover:bg-blue-800 transition">🎤</button>
-            <input type="text" id="user-input" placeholder="Yahan likhein..." 
-                class="flex-1 bg-[#0f172a] border border-blue-900 text-white px-4 py-3 rounded-xl focus:outline-none">
-            <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition">➤</button>
+    <div id="settingsModal" class="fixed inset-0 bg-black/90 hidden z-[100] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-slate-900 p-6 rounded-3xl border border-white/10">
+            <h2 class="text-xl font-bold mb-4">Core Config</h2>
+            <label class="text-[10px] text-gray-500 uppercase font-bold mb-2 block">OpenRouter API Key</label>
+            <input type="password" id="apiKeyInput" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl mb-6 text-sm text-indigo-400 outline-none">
+            <button onclick="saveSettings()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/20">Update Core</button>
+            <button onclick="toggleSettings()" class="w-full mt-4 text-gray-500 text-xs">Close Terminal</button>
         </div>
+    </div>
+
+    <div id="loader" class="fixed inset-0 bg-black/60 z-[110] hidden flex flex-col items-center justify-center backdrop-blur-sm">
+        <div class="w-10 h-10 border-4 border-white/10 border-t-indigo-500 rounded-full animate-spin"></div>
     </div>
 
     <script>
-        const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const micBtn = document.getElementById('mic-btn');
-        const welcomeMsg = document.getElementById('welcome-msg');
+        let state = {
+            videoContext: "",
+            apiKey: localStorage.getItem('matrix_key_v2') || "",
+            model: "google/gemini-2.0-flash-001" // Fixed Model ID
+        };
 
-        // --- 1. AI KI AWAZ (Text to Speech) ---
-        function speak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'hi-IN'; // Urdu jesa accent
-            utterance.rate = 1.0;
-            window.speechSynthesis.speak(utterance);
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            if(!email.includes('@')) return alert("Valid Email Required");
+            document.getElementById('loginScreen').style.display = 'none';
+            const app = document.getElementById('appContainer');
+            app.classList.remove('hidden');
+            setTimeout(() => app.classList.add('opacity-100'), 50);
+            document.getElementById('apiKeyInput').value = state.apiKey;
+            addMessage("ai", "Neural Link Established. Please ensure your API key is set in the gear icon.");
         }
 
-        // --- 2. AAPKI AWAZ (Speech to Text) ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ur-PK'; 
-
-            micBtn.onclick = () => {
-                recognition.start();
-                micBtn.classList.add('mic-on');
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                userInput.value = transcript;
-                micBtn.classList.remove('mic-on');
-                handleMessage(); // Bolne ke baad khud send ho jaye
-            };
-
-            recognition.onerror = () => micBtn.classList.remove('mic-on');
+        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+        
+        function saveSettings() {
+            state.apiKey = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem('matrix_key_v2', state.apiKey);
+            toggleSettings();
+            addMessage("ai", "Core configuration updated successfully.");
         }
 
-        // --- 3. MESSAGE LOGIC ---
-        function addMessage(text, type) {
-            if (welcomeMsg) welcomeMsg.remove(); // Welcome text khatam karein
+        async function loadVideo() {
+            const url = document.getElementById('youtubeUrl').value;
+            if(!url) return;
+            document.getElementById('status').innerText = "FETCHING NEURAL DATA...";
+            document.getElementById('loader').classList.remove('hidden');
+            try {
+                const res = await fetch(`https://r.jina.ai/${url}`);
+                state.videoContext = await res.text();
+                document.getElementById('status').innerText = "DATA SYNCED";
+                addMessage("ai", "Video transcript secured. I can now analyze this content for you.");
+            } catch (e) { 
+                document.getElementById('status').innerText = "SYNC FAILED";
+                addMessage("ai", "Failed to reach transcript server. Check URL."); 
+            } finally { document.getElementById('loader').classList.add('hidden'); }
+        }
 
-            const div = document.createElement('div');
-            div.className = type === 'user' ? 'user-msg' : 'ai-msg';
-            div.innerText = text;
-            chatBox.appendChild(div);
+        async function handleChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('userQuery');
+            const msg = input.value.trim();
             
-            // Auto scroll to bottom
-            chatBox.scrollTop = chatBox.scrollHeight;
+            if(!msg || !state.apiKey) {
+                if(!state.apiKey) { addMessage("ai", "⚠️ Set API Key in settings first!"); toggleSettings(); }
+                return;
+            }
+
+            addMessage("user", msg);
+            input.value = "";
+            document.getElementById('loader').classList.remove('hidden');
+
+            try {
+                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${state.apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.origin,
+                        "X-Title": "Neural Matrix"
+                    },
+                    body: JSON.stringify({
+                        model: state.model,
+                        messages: [
+                            { role: "system", content: "You are an expert video analyst. Use the following transcript to answer the user accurately. If the info is not there, say so." },
+                            { role: "system", content: "TRANSCRIPT: " + state.videoContext.substring(0, 15000) },
+                            { role: "user", content: msg }
+                        ],
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await res.json();
+                if(data.choices) {
+                    addMessage("ai", data.choices[0].message.content);
+                } else {
+                    addMessage("ai", "❌ Error: " + (data.error?.message || "Check API Key balance."));
+                }
+            } catch (err) {
+                addMessage("ai", "❌ Connection Interrupted.");
+            } finally { document.getElementById('loader').classList.add('hidden'); }
         }
 
-        function getReply(text) {
-            let reply = "";
-            text = text.toLowerCase();
-
-            if (text.includes("salam")) reply = "Walekum Assalam! Kaise hain aap?";
-            else if (text.includes("naam")) reply = "Mera naam Mera AI hai, aapka blue assistant.";
-            else if (text.includes("haal")) reply = "Main bilkul theek, aap sunao?";
-            else reply = "G main samajh gaya, aur kuch?";
-
-            addMessage(reply, 'ai');
-            speak(reply); // AI bol kar jawab dega
+        function addMessage(role, text) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = `p-4 max-w-[85%] text-sm leading-relaxed ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
-
-        function handleMessage() {
-            const val = userInput.value.trim();
-            if (!val) return;
-
-            addMessage(val, 'user');
-            userInput.value = "";
-
-            setTimeout(() => {
-                getReply(val);
-            }, 600);
-        }
-
-        sendBtn.onclick = handleMessage;
-        userInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") handleMessage();
-        });
     </script>
 </body>
 </html>
-
