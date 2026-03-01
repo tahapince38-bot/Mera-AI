@@ -3,89 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mera AI | Smart Dark</title>
+    <title>Mera AI - Smart Blue</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #050505; color: #e0e0e0; font-family: 'Inter', sans-serif; }
-        .neon-border { border: 1px solid #1e40af; box-shadow: 0 0 15px rgba(30, 64, 175, 0.3); }
-        .chat-area { height: calc(100vh - 160px); }
-        .user-bubble { background: #1e3a8a; border-radius: 18px 18px 0 18px; align-self: flex-end; }
-        .ai-bubble { color: #60a5fa; align-self: flex-start; }
-        .blue-glow { text-shadow: 0 0 10px #3b82f6; }
+        body { background-color: #020617; color: #e2e8f0; font-family: sans-serif; }
+        /* Neon Blue Effects */
+        .neon-text { text-shadow: 0 0 10px #3b82f6; }
+        .neon-box { border: 1px solid #1d4ed8; box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
+        .user-msg { background: #1e3a8a; color: white; border-radius: 15px 15px 0 15px; }
+        .ai-msg { background: #0f172a; border: 1px solid #1e40af; color: #93c5fd; border-radius: 15px 15px 15px 0; }
+        /* Typing Animation */
+        .dot { animation: jump 1s infinite; }
+        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="p-4 border-b border-blue-900/50 bg-black flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <span class="text-blue-500 text-2xl animate-pulse">✦</span>
-            <h1 class="text-xl font-bold text-blue-400 blue-glow">Mera AI</h1>
+    <div class="p-4 bg-black border-b border-blue-900 flex items-center gap-3 shadow-lg shadow-blue-900/20">
+        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <div class="text-[10px] text-blue-500 font-mono">SMART_MODE_ON</div>
-    </nav>
+        <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
+    </div>
 
-    <main id="chat-container" class="chat-area overflow-y-auto p-6 flex flex-col space-y-6">
-        <div id="welcome" class="text-center my-auto">
-            <h2 class="text-3xl font-bold text-blue-500">Mera AI Smart Interface</h2>
-            <p class="text-gray-500 mt-2 text-sm">Ab main aapki baat samajh kar jawab doon ga.</p>
+    <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex flex-col items-center justify-center h-full text-center space-y-4" id="welcome">
+            <h2 class="text-3xl font-bold text-blue-400 neon-text">Assalam-o-Alaikum!</h2>
+            <p class="text-gray-400">Main "Mera AI" hoon. Mujh se kuch bhi poochein.</p>
         </div>
-    </main>
+    </div>
 
-    <footer class="p-4 bg-black border-t border-blue-900/30">
-        <div class="max-w-4xl mx-auto flex gap-2">
-            <input type="text" id="msg-input" placeholder="Kuch bhi poochein..." 
-                class="w-full bg-[#0a0a0a] neon-border rounded-xl px-5 py-3 outline-none text-white focus:border-blue-400 transition-all">
-            <button id="send-btn" class="bg-blue-700 hover:bg-blue-600 p-3 rounded-xl transition">
-                <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+    <div class="p-4 bg-black border-t border-blue-900">
+        <div class="flex gap-2">
+            <input type="text" id="user-input" placeholder="Yahan likhein..." 
+                class="flex-1 bg-[#0f172a] neon-box text-white px-4 py-3 rounded-xl focus:outline-none focus:border-blue-400">
+            <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                ➤
             </button>
         </div>
-    </footer>
+    </div>
 
     <script>
-        const container = document.getElementById('chat-container');
-        const input = document.getElementById('msg-input');
-        const btn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
         const welcome = document.getElementById('welcome');
 
-        async function getSmartReply(userText) {
-            // Fake Delay for "Thinking"
-            const loading = document.createElement('div');
-            loading.className = 'ai-bubble italic text-xs animate-pulse';
-            loading.innerText = 'Mera AI soch raha hai...';
-            container.appendChild(loading);
-            
-            // Note: Asli AI connect karne ke liye aapko yahan Google API key dalni hogi
-            // Abhi ke liye main isay mazeed behtar (Logic based) bana raha hoon
-            setTimeout(() => {
-                loading.remove();
-                let reply = "";
-                
-                if(userText.toLowerCase().includes("kaise ho")) reply = "Main bilkul theek hoon! Aap batayein main aapki kya madad karoon?";
-                else if(userText.toLowerCase().includes("naam")) reply = "Mera naam 'Mera AI' hai, aur mujhe aap ne banaya hai!";
-                else if(userText.toLowerCase().includes("paisa")) reply = "App bana kar Ads lagane se aap paise kama sakte hain!";
-                else reply = "Aap ka sawal dilchasp hai. Main is par mazeed research kar ke aap ko behtar bata sakta hoon!";
-                
-                addMessage(reply, false);
-            }, 1000);
+        // Ye function AI ka dimagh hai (Smart Replies)
+        function getSmartReply(text) {
+            text = text.toLowerCase(); // Chota bara lafz ignore karein
+
+            if (text.includes("salam") || text.includes("hello") || text.includes("hi")) {
+                return "Walekum Assalam! Kaise hain aap?";
+            } 
+            else if (text.includes("name") || text.includes("naam") || text.includes("kaun")) {
+                return "Mera naam **Mera AI** hai. Main aapka personal assistant hoon.";
+            } 
+            else if (text.includes("haal") || text.includes("kaise ho")) {
+                return "Main bilkul theek hoon, shukriya! Aap sunayein?";
+            }
+            else if (text.includes("kya kar") || text.includes("help")) {
+                return "Main aapke sawalon ke jawab de sakta hoon aur aap se batein kar sakta hoon.";
+            }
+            else if (text.includes("blue") || text.includes("color")) {
+                return "Ji, mujhe Blue color bohot pasand hai, isi liye mera theme blue hai!";
+            }
+            else {
+                return "Acha sawal hai! Main abhi seekh raha hoon, is liye shayad iska jawab na de sakoon.";
+            }
         }
 
         function addMessage(text, isUser) {
-            if(welcome) welcome.remove();
+            if(welcome) welcome.style.display = 'none'; // Welcome hatayein
+
             const div = document.createElement('div');
-            div.className = isUser ? 'user-bubble px-4 py-2 max-w-[80%]' : 'ai-bubble max-w-[90%] flex gap-2';
-            div.innerHTML = isUser ? text : `<span class="text-blue-500">✦</span><span>${text}</span>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            div.className = isUser ? 'flex justify-end' : 'flex justify-start';
+            
+            div.innerHTML = `
+                <div class="${isUser ? 'user-msg' : 'ai-msg'} px-5 py-3 max-w-[85%]">
+                    ${text}
+                </div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        btn.onclick = () => {
-            const val = input.value.trim();
-            if(!val) return;
-            addMessage(val, true);
-            input.value = '';
-            getSmartReply(val);
+        sendBtn.onclick = () => {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true); // Aapka message dikhayein
+            userInput.value = "";
+
+            // Thora intezar (Thinking effect)
+            setTimeout(() => {
+                const reply = getSmartReply(text); // Smart reply layein
+                addMessage(reply, false);
+            }, 800);
         };
-        input.onkeypress = (e) => { if(e.key === 'Enter') btn.click(); };
     </script>
 </body>
 </html>
