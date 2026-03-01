@@ -3,119 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mera AI - Gemini Edition</title>
+    <title>Mera AI | Pro Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #131314; color: #e3e3e3; margin: 0; padding: 0; }
-        .gemini-gradient { background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .chat-container { height: calc(100vh - 180px); scroll-behavior: smooth; }
-        .input-box { background: #1e1f20; border: 1px solid #3c4043; border-radius: 30px; transition: 0.3s; }
-        .input-box:focus-within { background: #2a2b2d; border-color: #8ab4f8; }
-        .ai-message { line-height: 1.6; color: #e3e3e3; }
-        .user-message { background: #2a2b2d; border-radius: 20px 20px 4px 20px; padding: 12px 18px; display: inline-block; }
-        .dots { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #8ab4f8; animation: bounce 1.5s infinite; margin-right: 3px; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        body { background-color: #0a0a0c; color: #e0e0e0; font-family: 'Inter', sans-serif; }
+        .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+        .chat-area { height: calc(100vh - 160px); }
+        .user-bubble { background: #1e293b; border: 1px solid #334155; border-radius: 18px 18px 0 18px; }
+        .ai-bubble { color: #93c5fd; }
+        .blue-gradient-text { background: linear-gradient(to right, #60a5fa, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        input::placeholder { color: #4b5563; }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <header class="p-5 flex justify-between items-center bg-[#131314]">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl">✦</span>
-            <h1 class="text-xl font-semibold text-blue-400">Mera AI</h1>
+    <nav class="p-4 border-b border-blue-900/30 bg-[#0a0a0c] flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-blue-500 text-2xl">✦</span>
+            <h1 class="text-xl font-bold tracking-tight blue-gradient-text">Mera AI</h1>
         </div>
-        <div class="flex gap-4">
-            <div class="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-sm font-bold">U</div>
-        </div>
-    </header>
+        <div class="px-3 py-1 rounded-full border border-blue-500/50 text-[10px] text-blue-400 uppercase tracking-widest">System Online</div>
+    </nav>
 
-    <main id="chat-box" class="chat-container overflow-y-auto px-4 md:px-20 py-6 space-y-8">
-        <div id="welcome-ui" class="flex flex-col items-center justify-center pt-20 space-y-6">
-            <h2 class="text-5xl font-semibold gemini-gradient">Assalam-o-Alaikum</h2>
-            <p class="text-gray-400 text-xl font-light">Main aap ka apna Mera AI hoon. Aaj main aap ki kya madad kar sakta hoon?</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mt-10">
-                <div class="p-5 bg-[#1e1f20] rounded-2xl border border-gray-800 hover:bg-[#2a2b2d] cursor-pointer">
-                    <p class="text-sm text-gray-300">"Mujhay coding seekhnay ka tarika batayein"</p>
-                </div>
-                <div class="p-5 bg-[#1e1f20] rounded-2xl border border-gray-800 hover:bg-[#2a2b2d] cursor-pointer">
-                    <p class="text-sm text-gray-300">"Aik mazedar kahani sunayein"</p>
-                </div>
-            </div>
+    <main id="chat-container" class="chat-area overflow-y-auto p-6 space-y-8 flex flex-col">
+        <div id="welcome-msg" class="my-auto text-center space-y-4">
+            <h2 class="text-4xl font-bold text-white">Hello, <span class="text-blue-500">I'm Mera AI</span></h2>
+            <p class="text-gray-500 max-w-xs mx-auto">Dark mode optimized interface for better focus and speed.</p>
         </div>
     </main>
 
-    <footer class="p-4 bg-[#131314]">
-        <div class="max-w-4xl mx-auto">
-            <div class="input-box flex items-center px-6 py-4">
-                <input type="text" id="user-input" placeholder="Mera AI se kuch bhi poochein..." 
-                    class="flex-1 bg-transparent border-none outline-none text-white text-lg placeholder-gray-500">
-                <button id="send-btn" class="ml-4 text-blue-400 hover:scale-110 transition">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                    </svg>
-                </button>
-            </div>
-            <p class="text-center text-[10px] text-gray-500 mt-4">Mera AI can display inaccurate info, so double-check its responses.</p>
+    <footer class="p-4 bg-[#0a0a0c] border-t border-blue-900/20">
+        <div class="max-w-4xl mx-auto relative flex items-center">
+            <input type="text" id="msg-input" placeholder="Type a message..." 
+                class="w-full bg-[#111113] neon-border rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-white">
+            <button id="send-btn" class="absolute right-3 p-2 text-blue-500 hover:text-blue-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+            </button>
         </div>
     </footer>
 
     <script>
-        const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const welcomeUI = document.getElementById('welcome-ui');
+        const container = document.getElementById('chat-container');
+        const input = document.getElementById('msg-input');
+        const btn = document.getElementById('send-btn');
+        const welcome = document.getElementById('welcome-msg');
 
-        function appendMessage(text, type) {
-            if(welcomeUI) welcomeUI.remove(); // Remove welcome screen on first chat
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = type === 'user' ? 'flex justify-end' : 'flex justify-start items-start gap-3';
+        function addMessage(text, isUser) {
+            if(welcome) welcome.remove();
             
-            if (type === 'bot') {
-                msgDiv.innerHTML = `
-                    <span class="text-blue-400 mt-1">✦</span>
-                    <div class="ai-message max-w-[85%] text-lg">${text}</div>
-                `;
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? 'flex justify-end' : 'flex justify-start items-start gap-3';
+            
+            if(isUser) {
+                wrapper.innerHTML = `<div class="user-bubble px-5 py-3 max-w-[80%] shadow-lg shadow-blue-900/10">${text}</div>`;
             } else {
-                msgDiv.innerHTML = `<div class="user-message text-lg">${text}</div>`;
+                wrapper.innerHTML = `
+                    <span class="text-blue-500 mt-1">✦</span>
+                    <div class="ai-bubble max-w-[85%] text-lg leading-relaxed">${text}</div>
+                `;
             }
-
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
         }
 
-        async function handleChat() {
-            const query = userInput.value.trim();
-            if (!query) return;
+        function getAIResponse() {
+            const loading = document.createElement('div');
+            loading.className = 'text-blue-800 text-xs ml-8 animate-pulse';
+            loading.innerText = 'Mera AI is processing...';
+            container.appendChild(loading);
+            container.scrollTop = container.scrollHeight;
 
-            appendMessage(query, 'user');
-            userInput.value = '';
-
-            // Loading Animation
-            const loader = document.createElement('div');
-            loader.className = 'flex gap-1 ml-8 mt-2';
-            loader.innerHTML = '<div class="dots" style="animation-delay:0s"></div><div class="dots" style="animation-delay:0.2s"></div><div class="dots" style="animation-delay:0.4s"></div>';
-            chatBox.appendChild(loader);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Fake AI Delay
             setTimeout(() => {
-                loader.remove();
-                const replies = [
-                    "Bohot acha sawal hai! Main aap ki is mein madad kar sakta hoon.",
-                    "Ji zaroor, main abhi is par kaam kar raha hoon.",
-                    "Kya aap mazeed tafseel se bata saktay hain?",
-                    "Mera AI hamesha aap ke sath hai. Main aap ki coding seekhnay mein help karoon ga."
+                loading.remove();
+                const answers = [
+                    "Main aapka dark blue interface wala AI hoon. Bataiye kya madad karoon?",
+                    "Ye theme aapko kaisi lagi? Isay khusoosi taur par speed ke liye banaya gaya hai.",
+                    "Bilkul sahi! Main is par mazeed kaam kar sakta hoon.",
+                    "Ji, main tayyar hoon. Aap apna agla sawal poochein."
                 ];
-                const finalReply = replies[Math.floor(Math.random() * replies.length)];
-                appendMessage(finalReply, 'bot');
-            }, 1500);
+                addMessage(answers[Math.floor(Math.random() * answers.length)], false);
+            }, 1200);
         }
 
-        sendBtn.addEventListener('click', handleChat);
-        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleChat(); });
+        btn.onclick = () => {
+            const val = input.value.trim();
+            if(!val) return;
+            addMessage(val, true);
+            input.value = '';
+            getAIResponse();
+        };
+
+        input.onkeypress = (e) => { if(e.key === 'Enter') btn.click(); };
     </script>
 </body>
 </html>
+
