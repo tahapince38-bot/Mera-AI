@@ -2,362 +2,108 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neural Matrix - Gemini Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mera AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body, html { height: 100%; margin: 0; background: #131314; color: #e3e3e3; font-family: 'Outfit', sans-serif; overflow: hidden; }
-        
-        /* Gemini Gradient Background */
-        .gemini-bg {
-            background: radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.15) 0%, rgba(19, 19, 20, 0) 50%);
-        }
-
-        /* Message Bubbles */
-        .msg-user {
-            background: #2d2e30;
-            color: white;
-            border-radius: 18px 18px 4px 18px;
-            padding: 12px 16px;
-            max-width: 85%;
-            margin-left: auto;
-        }
-        .msg-ai {
-            background: transparent;
-            color: #e3e3e3;
-            max-width: 90%;
-            line-height: 1.6;
-        }
-
-        /* Floating Input Bar */
-        .input-area {
-            background: #1e1f20;
-            border-radius: 32px;
-            border: 1px solid #444746;
-            transition: all 0.3s ease;
-        }
-        .input-area:focus-within {
-            background: #28292a;
-            border-color: #8e918f;
-        }
-
-        /* Animations */
-        .mic-active { animation: pulse-red 1.5s infinite; color: #ea4335 !important; }
-        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        
-        .loading-dots span {
-            animation: bounce 1.4s infinite ease-in-out both;
-            background-color: #a8c7fa;
-            border-radius: 50%;
-            display: inline-block;
-            height: 6px;
-            width: 6px;
-            margin: 0 2px;
-        }
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .chat-container { height: calc(100vh - 160px); }
+        body { background-color: #050505; color: white; }
     </style>
 </head>
-<body class="gemini-bg flex flex-col items-center">
-
-    <div id="loginScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#131314] p-6 transition-all duration-500">
-        <div class="mb-8 relative">
-            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-red-500 blur-2xl absolute inset-0 opacity-40"></div>
-            <i class="ph-fill ph-sparkle text-5xl text-white relative z-10"></i>
-        </div>
-        <h1 class="text-4xl font-medium mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-red-400 bg-clip-text text-transparent">Hello, Human</h1>
-        <p class="text-gray-400 mb-8">I can help you learn, code, and analyze.</p>
-        
-        <div class="w-full max-w-sm">
-            <input type="email" id="loginEmail" placeholder="Enter your email" class="w-full bg-[#1e1f20] border border-[#444746] rounded-2xl p-4 text-white outline-none focus:border-blue-400 mb-4 transition-colors">
-            <button onclick="handleLogin()" class="w-full bg-white text-black font-medium py-4 rounded-2xl hover:bg-gray-200 transition-colors">Get Started</button>
-        </div>
-    </div>
-
-    <div id="appContainer" class="w-full h-full max-w-3xl flex flex-col hidden opacity-0 transition-opacity duration-700">
-        
-        <header class="p-4 flex justify-between items-center z-10">
-            <div class="flex items-center gap-2 text-[#e3e3e3]">
-                <span class="text-lg font-medium">Gemini Pro</span>
-                <i class="ph-fill ph-caret-down text-xs"></i>
+<body>
+    <header class="p-4 border-b border-gray-800 flex justify-between items-center bg-black sticky top-0 z-10">
+        <h1 class="text-2xl font-bold text-blue-500">Mera AI</h1>
+        <div id="user-section">
+            <button id="login-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition">Google Login</button>
+            <div id="user-info" class="hidden flex items-center gap-3">
+                <span id="user-name" class="text-sm border-r border-gray-700 pr-3"></span>
+                <button id="logout-btn" class="text-xs text-gray-400 underline">Logout</button>
             </div>
-            <button onclick="toggleSettings()" class="w-10 h-10 rounded-full hover:bg-[#2d2e30] flex items-center justify-center transition-colors">
-                <i class="ph ph-gear text-xl"></i>
+        </div>
+    </header>
+
+    <main class="chat-container overflow-y-auto p-4 space-y-4" id="chat-box">
+        <div class="text-center mt-10 text-gray-500">
+            <p class="text-xl">Assalam-o-Alaikum! Main hoon <span class="text-blue-400">Mera AI</span>.</p>
+            <p class="text-sm mt-2">Shuru karne ke liye upar Google Login karein.</p>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full p-4 bg-black border-t border-gray-800">
+        <div class="max-w-4xl mx-auto flex gap-2">
+            <input type="text" id="user-input" placeholder="Mera AI se kuch bhi poochein..." 
+                class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" disabled>
+            <button id="send-btn" class="bg-blue-600 p-3 rounded-xl disabled:opacity-50" disabled>
+                <svg viewBox="0 0 24 24" class="w-6 h-6 fill-white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
             </button>
-        </header>
-
-        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide pb-36">
-            <div id="welcomeState" class="mt-20 px-4">
-                <h2 class="text-4xl font-medium bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">Hello, Taha</h2>
-                <h3 class="text-4xl font-medium text-[#444746] mb-8">How can I help you today?</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-x-auto">
-                    <div class="bg-[#1e1f20] p-4 rounded-2xl hover:bg-[#2d2e30] cursor-pointer transition-colors" onclick="fillInput('Explain Quantum Computing like I am 5')">
-                        <p class="text-sm">Explain Quantum Computing</p>
-                    </div>
-                    <div class="bg-[#1e1f20] p-4 rounded-2xl hover:bg-[#2d2e30] cursor-pointer transition-colors" onclick="fillInput('Write a Python script for automation')">
-                        <p class="text-sm">Code a Python script</p>
-                    </div>
-                    <div class="bg-[#1e1f20] p-4 rounded-2xl hover:bg-[#2d2e30] cursor-pointer transition-colors" onclick="fillInput('Compare ChatGPT vs Gemini')">
-                        <p class="text-sm">ChatGPT vs Gemini</p>
-                    </div>
-                </div>
-            </div>
         </div>
+    </footer>
 
-        <div class="fixed bottom-0 w-full max-w-3xl p-4 bg-[#131314]">
-            <div id="videoBar" class="hidden mb-2 flex items-center gap-2 bg-[#1e1f20] p-2 rounded-lg text-xs">
-                <i class="ph-fill ph-youtube-logo text-red-500"></i>
-                <span class="text-gray-400 truncate flex-1">Analyzing Video...</span>
-                <button onclick="clearVideo()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-            </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-            <form onsubmit="handleChat(event)" class="input-area flex items-end p-2 relative">
-                <button type="button" onclick="promptVideo()" class="p-3 rounded-full text-[#c4c7c5] hover:bg-[#2d2e30] transition-colors">
-                    <i class="ph-bold ph-plus-circle text-xl"></i>
-                </button>
-
-                <textarea id="userQuery" rows="1" placeholder="Enter a prompt here" class="w-full bg-transparent text-[#e3e3e3] border-none outline-none py-3 px-2 text-base resize-none max-h-32 placeholder-[#444746]" oninput="autoResize(this)"></textarea>
-
-                <button type="button" id="micBtn" onclick="toggleVoice()" class="p-3 rounded-full text-[#c4c7c5] hover:bg-[#2d2e30] transition-colors">
-                    <i class="ph-bold ph-microphone text-xl"></i>
-                </button>
-
-                <button type="submit" id="sendBtn" class="p-3 rounded-full text-[#c4c7c5] hover:text-white transition-colors hidden">
-                    <i class="ph-fill ph-paper-plane-right text-xl"></i>
-                </button>
-            </form>
-            <p class="text-center text-[10px] text-[#444746] mt-3">Gemini may display inaccurate info, including about people, so double-check its responses.</p>
-        </div>
-    </div>
-
-    <div id="videoModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-6">
-        <div class="bg-[#1e1f20] w-full max-w-sm p-6 rounded-3xl border border-[#444746]">
-            <h3 class="text-lg font-medium mb-4">Analyze Video</h3>
-            <input type="text" id="youtubeInput" placeholder="Paste YouTube Link" class="w-full bg-[#131314] border border-[#444746] rounded-xl p-3 text-white mb-4 outline-none">
-            <div class="flex gap-2">
-                <button onclick="loadVideo()" class="flex-1 bg-white text-black font-bold py-3 rounded-xl">Analyze</button>
-                <button onclick="document.getElementById('videoModal').classList.add('hidden')" class="px-4 py-3 rounded-xl hover:bg-[#2d2e30] text-gray-400">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-6">
-        <div class="bg-[#1e1f20] w-full max-w-sm p-6 rounded-3xl border border-[#444746]">
-            <h3 class="text-lg font-medium mb-4">Settings</h3>
-            <label class="text-xs text-gray-400 uppercase font-bold">API Key (OpenRouter)</label>
-            <input type="password" id="apiKeyInput" class="w-full bg-[#131314] border border-[#444746] rounded-xl p-3 text-white mb-4 outline-none mt-2">
-            <button onclick="saveSettings()" class="w-full bg-[#4c8df6] text-white font-bold py-3 rounded-xl">Save</button>
-            <button onclick="toggleSettings()" class="w-full mt-2 text-gray-400 py-2">Close</button>
-        </div>
-    </div>
-
-    <script>
-        let state = {
-            apiKey: localStorage.getItem('gemini_key') || "",
-            videoContext: "",
-            isListening: false
+        // Aapka provide kiya hua Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcP8JMCw4IBafedobiBK7kP0cC1JkQPkk",
+            authDomain: "mera-ai-9d18f.firebaseapp.com",
+            projectId: "mera-ai-9d18f",
+            storageBucket: "mera-ai-9d18f.firebasestorage.app",
+            messagingSenderId: "762601726215",
+            appId: "1:762601726215:web:6e02992adfab72ecc8a5a2"
         };
 
-        // UI Functions
-        function autoResize(el) {
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
-            document.getElementById('sendBtn').classList.toggle('hidden', el.value.trim() === "");
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        function fillInput(text) {
-            document.getElementById('userQuery').value = text;
-            autoResize(document.getElementById('userQuery'));
-            document.getElementById('userQuery').focus();
-        }
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userInfo = document.getElementById('user-info');
+        const userNameDisp = document.getElementById('user-name');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-box');
 
-        function handleLogin() {
-            if(!document.getElementById('loginEmail').value) return alert("Email Required");
-            document.getElementById('loginScreen').classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('appContainer').classList.remove('hidden');
-                setTimeout(() => document.getElementById('appContainer').classList.remove('opacity-0'), 50);
-            }, 500);
-            document.getElementById('apiKeyInput').value = state.apiKey;
-        }
+        // Login Function
+        loginBtn.onclick = async () => {
+            try { await signInWithPopup(auth, provider); } 
+            catch (e) { alert("Login Error: " + e.message); }
+        };
 
-        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
-        function saveSettings() {
-            state.apiKey = document.getElementById('apiKeyInput').value.trim();
-            localStorage.setItem('gemini_key', state.apiKey);
-            toggleSettings();
-            addMessage("ai", "Settings updated. I am ready.");
-        }
+        // Logout Function
+        logoutBtn.onclick = () => signOut(auth);
 
-        // Voice Logic (Web Speech API)
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-
-        if(recognition) {
-            recognition.continuous = false;
-            recognition.lang = 'en-US'; // Default
-            
-            recognition.onstart = () => {
-                state.isListening = true;
-                document.getElementById('micBtn').classList.add('mic-active');
-            };
-            recognition.onend = () => {
-                state.isListening = false;
-                document.getElementById('micBtn').classList.remove('mic-active');
-            };
-            recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                const input = document.getElementById('userQuery');
-                input.value = text;
-                autoResize(input);
-                input.focus();
-            };
-        }
-
-        function toggleVoice() {
-            if(!recognition) return alert("Voice not supported in this browser.");
-            if(state.isListening) recognition.stop();
-            else recognition.start();
-        }
-
-        // Video Logic
-        function promptVideo() { document.getElementById('videoModal').classList.remove('hidden'); }
-        
-        async function loadVideo() {
-            const url = document.getElementById('youtubeInput').value;
-            if(!url) return;
-            document.getElementById('videoModal').classList.add('hidden');
-            
-            const bar = document.getElementById('videoBar');
-            bar.classList.remove('hidden');
-            bar.querySelector('span').innerText = "Loading transcript...";
-
-            try {
-                const res = await fetch(`https://r.jina.ai/${url}`);
-                if(!res.ok) throw new Error();
-                state.videoContext = await res.text();
-                bar.querySelector('span').innerText = "Video Context Active";
-                addMessage("ai", "I've analyzed the video. You can ask me about it now.");
-            } catch (e) {
-                bar.querySelector('span').innerText = "Failed to load video";
-                setTimeout(() => bar.classList.add('hidden'), 2000);
-            }
-        }
-        function clearVideo() {
-            state.videoContext = "";
-            document.getElementById('videoBar').classList.add('hidden');
-        }
-
-        // Chat Logic
-        async function handleChat(e) {
-            e.preventDefault();
-            const input = document.getElementById('userQuery');
-            const msg = input.value.trim();
-            if(!msg) return;
-            if(!state.apiKey) { toggleSettings(); return; }
-
-            // Hide Welcome State
-            document.getElementById('welcomeState').style.display = 'none';
-
-            addMessage("user", msg);
-            input.value = "";
-            input.style.height = 'auto';
-            document.getElementById('sendBtn').classList.add('hidden');
-
-            const loaderId = showLoader();
-
-            try {
-                const systemPrompt = `You are an advanced AI assistant powered by Gemini. 
-                - You are helpful, harmless, and honest.
-                - You can speak all languages (English, Urdu, Hindi, Spanish, etc).
-                - You can discuss any topic: Coding, General Knowledge, Science, Comparisons (DeepSeek vs ChatGPT).
-                - If 'VIDEO_CONTEXT' is present, use it to answer video questions.
-                - DO NOT provide passwords, hack emails, or steal game accounts. If asked, explain that it is not allowed for security reasons.
-                
-                VIDEO_CONTEXT: ${state.videoContext || "None"}`;
-
-                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${state.apiKey}`,
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": window.location.origin,
-                        "X-Title": "Gemini Clone"
-                    },
-                    body: JSON.stringify({
-                        model: "google/gemini-2.0-flash-001",
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: msg }
-                        ]
-                    })
-                });
-
-                const data = await res.json();
-                removeLoader(loaderId);
-                if(data.choices) addMessage("ai", data.choices[0].message.content);
-                else addMessage("ai", "Error: " + (data.error?.message || "Unknown error"));
-
-            } catch (err) {
-                removeLoader(loaderId);
-                addMessage("ai", "Connection Error.");
-            }
-        }
-
-        function addMessage(role, text) {
-            const container = document.getElementById('chatContainer');
-            const div = document.createElement('div');
-            
-            if(role === 'ai') {
-                div.className = "flex gap-4 mb-6";
-                div.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-red-500 flex items-center justify-center shrink-0 animate-pulse">
-                        <i class="ph-fill ph-sparkle text-white text-xs"></i>
-                    </div>
-                    <div class="msg-ai text-sm whitespace-pre-wrap">${formatText(text)}</div>
-                `;
+        // Auth State Manager
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userNameDisp.innerText = user.displayName;
+                userInput.disabled = false;
+                sendBtn.disabled = false;
             } else {
-                div.className = "flex justify-end mb-6";
-                div.innerHTML = `<div class="msg-user text-sm">${text}</div>`;
+                loginBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                userInput.disabled = true;
+                sendBtn.disabled = true;
             }
-            container.appendChild(div);
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-        }
+        });
 
-        function showLoader() {
-            const id = 'loader-' + Date.now();
-            const container = document.getElementById('chatContainer');
-            const div = document.createElement('div');
-            div.id = id;
-            div.className = "flex gap-4 mb-6";
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-red-500 flex items-center justify-center shrink-0">
-                    <i class="ph-fill ph-sparkle text-white text-xs"></i>
-                </div>
-                <div class="loading-dots pt-2"><span></span><span></span><span></span></div>
-            `;
-            container.appendChild(div);
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-            return id;
-        }
-
-        function removeLoader(id) {
-            const el = document.getElementById(id);
-            if(el) el.remove();
-        }
-
-        function formatText(text) {
-            // Simple markdown formatting
-            return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                       .replace(/```([\s\S]*?)```/g, '<div class="bg-[#1e1f20] p-3 rounded-lg font-mono text-xs my-2 overflow-x-auto">$1</div>');
-        }
+        // Simple Chat Interface
+        sendBtn.onclick = () => {
+            const text = userInput.value.trim();
+            if(!text) return;
+            
+            chatBox.innerHTML += `<div class="text-right"><span class="bg-blue-600 px-4 py-2 rounded-2xl inline-block max-w-[80%]">${text}</span></div>`;
+            userInput.value = "";
+            
+            // Artificial AI Response
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="text-left"><span class="bg-gray-800 px-4 py-2 rounded-2xl inline-block max-w-[80%] text-blue-300"><b>Mera AI:</b> Ji, aap ne sahi kaha! Main aapka apna AI hoon.</span></div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        };
     </script>
 </body>
 </html>
