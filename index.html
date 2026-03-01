@@ -7,23 +7,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #020617; color: #e2e8f0; font-family: sans-serif; }
-        /* Neon Blue Effects */
         .neon-text { text-shadow: 0 0 10px #3b82f6; }
         .neon-box { border: 1px solid #1d4ed8; box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
         .user-msg { background: #1e3a8a; color: white; border-radius: 15px 15px 0 15px; }
         .ai-msg { background: #0f172a; border: 1px solid #1e40af; color: #93c5fd; border-radius: 15px 15px 15px 0; }
-        /* Typing Animation */
-        .dot { animation: jump 1s infinite; }
-        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        #chat-box::-webkit-scrollbar { width: 5px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 10px; }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <div class="p-4 bg-black border-b border-blue-900 flex items-center gap-3 shadow-lg shadow-blue-900/20">
-        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <div class="p-4 bg-black border-b border-blue-900 flex items-center justify-between shadow-lg shadow-blue-900/20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
         </div>
-        <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
+        <span class="text-xs text-blue-400 opacity-50">Voice Enabled 🔊</span>
     </div>
 
     <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
@@ -49,38 +50,52 @@
         const sendBtn = document.getElementById('send-btn');
         const welcome = document.getElementById('welcome');
 
-        // Ye function AI ka dimagh hai (Smart Replies)
+        // --- VOICE FUNCTION ---
+        function speak(text) {
+            // Browser ki awaaz nikalne ki koshish
+            const message = new SpeechSynthesisUtterance();
+            message.text = text;
+            message.lang = 'hi-IN'; // Hindi/Urdu accent ke liye
+            message.rate = 1; // Speed
+            window.speechSynthesis.speak(message);
+        }
+
         function getSmartReply(text) {
-            text = text.toLowerCase(); // Chota bara lafz ignore karein
+            text = text.toLowerCase();
+            let response = "";
 
             if (text.includes("salam") || text.includes("hello") || text.includes("hi")) {
-                return "Walekum Assalam! Kaise hain aap?";
+                response = "Walekum Assalam! Kaise hain aap?";
             } 
             else if (text.includes("name") || text.includes("naam") || text.includes("kaun")) {
-                return "Mera naam **Mera AI** hai. Main aapka personal assistant hoon.";
+                response = "Mera naam Mera AI hai. Main aapka personal assistant hoon.";
             } 
             else if (text.includes("haal") || text.includes("kaise ho")) {
-                return "Main bilkul theek hoon, shukriya! Aap sunayein?";
+                response = "Main bilkul theek hoon, shukriya! Aap sunayein?";
             }
             else if (text.includes("kya kar") || text.includes("help")) {
-                return "Main aapke sawalon ke jawab de sakta hoon aur aap se batein kar sakta hoon.";
+                response = "Main aapke sawalon ke jawab de sakta hoon aur aap se batein kar sakta hoon.";
             }
             else if (text.includes("blue") || text.includes("color")) {
-                return "Ji, mujhe Blue color bohot pasand hai, isi liye mera theme blue hai!";
+                response = "Ji, mujhe Blue color bohot pasand hai, isi liye mera theme blue hai!";
             }
             else {
-                return "Acha sawal hai! Main abhi seekh raha hoon, is liye shayad iska jawab na de sakoon.";
+                response = "Acha sawal hai! Main abhi seekh raha hoon, is liye shayad iska jawab na de sakoon.";
             }
+
+            // AI ke bolne ka function call karein
+            speak(response);
+            return response;
         }
 
         function addMessage(text, isUser) {
-            if(welcome) welcome.style.display = 'none'; // Welcome hatayein
+            if(welcome) welcome.style.display = 'none';
 
             const div = document.createElement('div');
             div.className = isUser ? 'flex justify-end' : 'flex justify-start';
             
             div.innerHTML = `
-                <div class="${isUser ? 'user-msg' : 'ai-msg'} px-5 py-3 max-w-[85%]">
+                <div class="${isUser ? 'user-msg' : 'ai-msg'} px-5 py-3 max-w-[85%] animate-pulse">
                     ${text}
                 </div>
             `;
@@ -88,19 +103,29 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        sendBtn.onclick = () => {
+        const handleSend = () => {
             const text = userInput.value.trim();
             if (!text) return;
 
-            addMessage(text, true); // Aapka message dikhayein
+            addMessage(text, true);
             userInput.value = "";
 
-            // Thora intezar (Thinking effect)
             setTimeout(() => {
-                const reply = getSmartReply(text); // Smart reply layein
+                const reply = getSmartReply(text);
                 addMessage(reply, false);
-            }, 800);
+            }, 600);
         };
+
+        // Button click par send
+        sendBtn.onclick = handleSend;
+
+        // Enter key dabane par send
+        userInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                handleSend();
+            }
+        });
     </script>
 </body>
 </html>
+
