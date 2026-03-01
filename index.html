@@ -3,41 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mera AI | Pro Dark</title>
+    <title>Mera AI | Smart Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0a0a0c; color: #e0e0e0; font-family: 'Inter', sans-serif; }
-        .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+        body { background-color: #050505; color: #e0e0e0; font-family: 'Inter', sans-serif; }
+        .neon-border { border: 1px solid #1e40af; box-shadow: 0 0 15px rgba(30, 64, 175, 0.3); }
         .chat-area { height: calc(100vh - 160px); }
-        .user-bubble { background: #1e293b; border: 1px solid #334155; border-radius: 18px 18px 0 18px; }
-        .ai-bubble { color: #93c5fd; }
-        .blue-gradient-text { background: linear-gradient(to right, #60a5fa, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        input::placeholder { color: #4b5563; }
+        .user-bubble { background: #1e3a8a; border-radius: 18px 18px 0 18px; align-self: flex-end; }
+        .ai-bubble { color: #60a5fa; align-self: flex-start; }
+        .blue-glow { text-shadow: 0 0 10px #3b82f6; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden">
+<body class="flex flex-col h-screen">
 
-    <nav class="p-4 border-b border-blue-900/30 bg-[#0a0a0c] flex justify-between items-center">
+    <nav class="p-4 border-b border-blue-900/50 bg-black flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <span class="text-blue-500 text-2xl">✦</span>
-            <h1 class="text-xl font-bold tracking-tight blue-gradient-text">Mera AI</h1>
+            <span class="text-blue-500 text-2xl animate-pulse">✦</span>
+            <h1 class="text-xl font-bold text-blue-400 blue-glow">Mera AI</h1>
         </div>
-        <div class="px-3 py-1 rounded-full border border-blue-500/50 text-[10px] text-blue-400 uppercase tracking-widest">System Online</div>
+        <div class="text-[10px] text-blue-500 font-mono">SMART_MODE_ON</div>
     </nav>
 
-    <main id="chat-container" class="chat-area overflow-y-auto p-6 space-y-8 flex flex-col">
-        <div id="welcome-msg" class="my-auto text-center space-y-4">
-            <h2 class="text-4xl font-bold text-white">Hello, <span class="text-blue-500">I'm Mera AI</span></h2>
-            <p class="text-gray-500 max-w-xs mx-auto">Dark mode optimized interface for better focus and speed.</p>
+    <main id="chat-container" class="chat-area overflow-y-auto p-6 flex flex-col space-y-6">
+        <div id="welcome" class="text-center my-auto">
+            <h2 class="text-3xl font-bold text-blue-500">Mera AI Smart Interface</h2>
+            <p class="text-gray-500 mt-2 text-sm">Ab main aapki baat samajh kar jawab doon ga.</p>
         </div>
     </main>
 
-    <footer class="p-4 bg-[#0a0a0c] border-t border-blue-900/20">
-        <div class="max-w-4xl mx-auto relative flex items-center">
-            <input type="text" id="msg-input" placeholder="Type a message..." 
-                class="w-full bg-[#111113] neon-border rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-white">
-            <button id="send-btn" class="absolute right-3 p-2 text-blue-500 hover:text-blue-400">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+    <footer class="p-4 bg-black border-t border-blue-900/30">
+        <div class="max-w-4xl mx-auto flex gap-2">
+            <input type="text" id="msg-input" placeholder="Kuch bhi poochein..." 
+                class="w-full bg-[#0a0a0a] neon-border rounded-xl px-5 py-3 outline-none text-white focus:border-blue-400 transition-all">
+            <button id="send-btn" class="bg-blue-700 hover:bg-blue-600 p-3 rounded-xl transition">
+                <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
             </button>
         </div>
     </footer>
@@ -46,44 +45,37 @@
         const container = document.getElementById('chat-container');
         const input = document.getElementById('msg-input');
         const btn = document.getElementById('send-btn');
-        const welcome = document.getElementById('welcome-msg');
+        const welcome = document.getElementById('welcome');
+
+        async function getSmartReply(userText) {
+            // Fake Delay for "Thinking"
+            const loading = document.createElement('div');
+            loading.className = 'ai-bubble italic text-xs animate-pulse';
+            loading.innerText = 'Mera AI soch raha hai...';
+            container.appendChild(loading);
+            
+            // Note: Asli AI connect karne ke liye aapko yahan Google API key dalni hogi
+            // Abhi ke liye main isay mazeed behtar (Logic based) bana raha hoon
+            setTimeout(() => {
+                loading.remove();
+                let reply = "";
+                
+                if(userText.toLowerCase().includes("kaise ho")) reply = "Main bilkul theek hoon! Aap batayein main aapki kya madad karoon?";
+                else if(userText.toLowerCase().includes("naam")) reply = "Mera naam 'Mera AI' hai, aur mujhe aap ne banaya hai!";
+                else if(userText.toLowerCase().includes("paisa")) reply = "App bana kar Ads lagane se aap paise kama sakte hain!";
+                else reply = "Aap ka sawal dilchasp hai. Main is par mazeed research kar ke aap ko behtar bata sakta hoon!";
+                
+                addMessage(reply, false);
+            }, 1000);
+        }
 
         function addMessage(text, isUser) {
             if(welcome) welcome.remove();
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = isUser ? 'flex justify-end' : 'flex justify-start items-start gap-3';
-            
-            if(isUser) {
-                wrapper.innerHTML = `<div class="user-bubble px-5 py-3 max-w-[80%] shadow-lg shadow-blue-900/10">${text}</div>`;
-            } else {
-                wrapper.innerHTML = `
-                    <span class="text-blue-500 mt-1">✦</span>
-                    <div class="ai-bubble max-w-[85%] text-lg leading-relaxed">${text}</div>
-                `;
-            }
-            
-            container.appendChild(wrapper);
+            const div = document.createElement('div');
+            div.className = isUser ? 'user-bubble px-4 py-2 max-w-[80%]' : 'ai-bubble max-w-[90%] flex gap-2';
+            div.innerHTML = isUser ? text : `<span class="text-blue-500">✦</span><span>${text}</span>`;
+            container.appendChild(div);
             container.scrollTop = container.scrollHeight;
-        }
-
-        function getAIResponse() {
-            const loading = document.createElement('div');
-            loading.className = 'text-blue-800 text-xs ml-8 animate-pulse';
-            loading.innerText = 'Mera AI is processing...';
-            container.appendChild(loading);
-            container.scrollTop = container.scrollHeight;
-
-            setTimeout(() => {
-                loading.remove();
-                const answers = [
-                    "Main aapka dark blue interface wala AI hoon. Bataiye kya madad karoon?",
-                    "Ye theme aapko kaisi lagi? Isay khusoosi taur par speed ke liye banaya gaya hai.",
-                    "Bilkul sahi! Main is par mazeed kaam kar sakta hoon.",
-                    "Ji, main tayyar hoon. Aap apna agla sawal poochein."
-                ];
-                addMessage(answers[Math.floor(Math.random() * answers.length)], false);
-            }, 1200);
         }
 
         btn.onclick = () => {
@@ -91,11 +83,9 @@
             if(!val) return;
             addMessage(val, true);
             input.value = '';
-            getAIResponse();
+            getSmartReply(val);
         };
-
         input.onkeypress = (e) => { if(e.key === 'Enter') btn.click(); };
     </script>
 </body>
 </html>
-
