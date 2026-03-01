@@ -6,41 +6,41 @@
     <title>Mera AI - Smart Blue</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #020617; color: #e2e8f0; font-family: sans-serif; }
+        body { background-color: #020617; color: #e2e8f0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
         .neon-text { text-shadow: 0 0 10px #3b82f6; }
         .neon-box { border: 1px solid #1d4ed8; box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
-        .user-msg { background: #1e3a8a; color: white; border-radius: 15px 15px 0 15px; }
-        .ai-msg { background: #0f172a; border: 1px solid #1e40af; color: #93c5fd; border-radius: 15px 15px 15px 0; }
-        #chat-box::-webkit-scrollbar { width: 5px; }
+        /* Message Bubbles Fix */
+        .msg-container { display: flex; flex-direction: column; gap: 12px; padding: 10px; }
+        .user-msg { align-self: flex-end; background: #1e3a8a; color: white; padding: 10px 16px; border-radius: 18px 18px 0 18px; max-width: 80%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .ai-msg { align-self: flex-start; background: #0f172a; border: 1px solid #1e40af; color: #93c5fd; padding: 10px 16px; border-radius: 18px 18px 18px 0; max-width: 80%; }
+        #chat-box::-webkit-scrollbar { width: 4px; }
         #chat-box::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 10px; }
+        .mic-on { background: #ef4444 !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body>
 
-    <div class="p-4 bg-black border-b border-blue-900 flex items-center justify-between shadow-lg shadow-blue-900/20">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            </div>
-            <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
+    <div class="p-4 bg-black border-b border-blue-900 flex items-center gap-3 shadow-lg">
+        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center neon-box">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <span class="text-xs text-blue-400 opacity-50">Voice Enabled 🔊</span>
+        <h1 class="text-xl font-bold text-blue-500 neon-text">Mera AI</h1>
     </div>
 
-    <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <div class="flex flex-col items-center justify-center h-full text-center space-y-4" id="welcome">
-            <h2 class="text-3xl font-bold text-blue-400 neon-text">Assalam-o-Alaikum!</h2>
-            <p class="text-gray-400">Main "Mera AI" hoon. Mujh se kuch bhi poochein.</p>
+    <div id="chat-box" class="flex-1 overflow-y-auto p-4 msg-container">
+        <div id="welcome-msg" class="text-center my-auto">
+            <h2 class="text-2xl font-bold text-blue-400 neon-text">Assalam-o-Alaikum!</h2>
+            <p class="text-gray-500">Main bol bhi sakta hoon aur sun bhi sakta hoon.</p>
         </div>
     </div>
 
     <div class="p-4 bg-black border-t border-blue-900">
         <div class="flex gap-2">
+            <button id="mic-btn" class="bg-blue-900 text-white px-4 rounded-xl hover:bg-blue-800 transition">🎤</button>
             <input type="text" id="user-input" placeholder="Yahan likhein..." 
-                class="flex-1 bg-[#0f172a] neon-box text-white px-4 py-3 rounded-xl focus:outline-none focus:border-blue-400">
-            <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition shadow-[0_0_15px_rgba(37,99,235,0.5)]">
-                ➤
-            </button>
+                class="flex-1 bg-[#0f172a] border border-blue-900 text-white px-4 py-3 rounded-xl focus:outline-none">
+            <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition">➤</button>
         </div>
     </div>
 
@@ -48,84 +48,80 @@
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
-        const welcome = document.getElementById('welcome');
+        const micBtn = document.getElementById('mic-btn');
+        const welcomeMsg = document.getElementById('welcome-msg');
 
-        // --- VOICE FUNCTION ---
+        // --- 1. AI KI AWAZ (Text to Speech) ---
         function speak(text) {
-            // Browser ki awaaz nikalne ki koshish
-            const message = new SpeechSynthesisUtterance();
-            message.text = text;
-            message.lang = 'hi-IN'; // Hindi/Urdu accent ke liye
-            message.rate = 1; // Speed
-            window.speechSynthesis.speak(message);
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN'; // Urdu jesa accent
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
         }
 
-        function getSmartReply(text) {
-            text = text.toLowerCase();
-            let response = "";
+        // --- 2. AAPKI AWAZ (Speech to Text) ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ur-PK'; 
 
-            if (text.includes("salam") || text.includes("hello") || text.includes("hi")) {
-                response = "Walekum Assalam! Kaise hain aap?";
-            } 
-            else if (text.includes("name") || text.includes("naam") || text.includes("kaun")) {
-                response = "Mera naam Mera AI hai. Main aapka personal assistant hoon.";
-            } 
-            else if (text.includes("haal") || text.includes("kaise ho")) {
-                response = "Main bilkul theek hoon, shukriya! Aap sunayein?";
-            }
-            else if (text.includes("kya kar") || text.includes("help")) {
-                response = "Main aapke sawalon ke jawab de sakta hoon aur aap se batein kar sakta hoon.";
-            }
-            else if (text.includes("blue") || text.includes("color")) {
-                response = "Ji, mujhe Blue color bohot pasand hai, isi liye mera theme blue hai!";
-            }
-            else {
-                response = "Acha sawal hai! Main abhi seekh raha hoon, is liye shayad iska jawab na de sakoon.";
-            }
+            micBtn.onclick = () => {
+                recognition.start();
+                micBtn.classList.add('mic-on');
+            };
 
-            // AI ke bolne ka function call karein
-            speak(response);
-            return response;
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                micBtn.classList.remove('mic-on');
+                handleMessage(); // Bolne ke baad khud send ho jaye
+            };
+
+            recognition.onerror = () => micBtn.classList.remove('mic-on');
         }
 
-        function addMessage(text, isUser) {
-            if(welcome) welcome.style.display = 'none';
+        // --- 3. MESSAGE LOGIC ---
+        function addMessage(text, type) {
+            if (welcomeMsg) welcomeMsg.remove(); // Welcome text khatam karein
 
             const div = document.createElement('div');
-            div.className = isUser ? 'flex justify-end' : 'flex justify-start';
-            
-            div.innerHTML = `
-                <div class="${isUser ? 'user-msg' : 'ai-msg'} px-5 py-3 max-w-[85%] animate-pulse">
-                    ${text}
-                </div>
-            `;
+            div.className = type === 'user' ? 'user-msg' : 'ai-msg';
+            div.innerText = text;
             chatBox.appendChild(div);
+            
+            // Auto scroll to bottom
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        const handleSend = () => {
-            const text = userInput.value.trim();
-            if (!text) return;
+        function getReply(text) {
+            let reply = "";
+            text = text.toLowerCase();
 
-            addMessage(text, true);
+            if (text.includes("salam")) reply = "Walekum Assalam! Kaise hain aap?";
+            else if (text.includes("naam")) reply = "Mera naam Mera AI hai, aapka blue assistant.";
+            else if (text.includes("haal")) reply = "Main bilkul theek, aap sunao?";
+            else reply = "G main samajh gaya, aur kuch?";
+
+            addMessage(reply, 'ai');
+            speak(reply); // AI bol kar jawab dega
+        }
+
+        function handleMessage() {
+            const val = userInput.value.trim();
+            if (!val) return;
+
+            addMessage(val, 'user');
             userInput.value = "";
 
             setTimeout(() => {
-                const reply = getSmartReply(text);
-                addMessage(reply, false);
+                getReply(val);
             }, 600);
-        };
+        }
 
-        // Button click par send
-        sendBtn.onclick = handleSend;
-
-        // Enter key dabane par send
-        userInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") {
-                handleSend();
-            }
+        sendBtn.onclick = handleMessage;
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleMessage();
         });
     </script>
 </body>
 </html>
-
